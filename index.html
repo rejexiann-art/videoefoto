@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Galeria de Mídias</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      min-height: 100vh;
+      color: #222;
+    }
+
+    header {
+      padding: 30px 20px;
+      text-align: center;
+      color: white;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    header p {
+      margin-top: 8px;
+      opacity: 0.9;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    button {
+      background: linear-gradient(135deg, #6a1b9a, #9c27b0);
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 25px rgba(106,27,154,0.4);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 120px;
+      padding: 14px;
+      background: white;
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .tab.active {
+      background: #6a1b9a;
+      color: white;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .media-card {
+      background: white;
+      border-radius: 20px;
+      padding: 15px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+      animation: aparecer 0.4s ease;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .media-card h3 {
+      margin: 10px 0 5px;
+      color: #4a148c;
+    }
+
+    .media-card p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .media-card small {
+      display: block;
+      color: #777;
+      margin-top: 8px;
+    }
+
+    .media-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .media-img:hover {
+      transform: scale(1.03);
+    }
+
+    audio, video, iframe {
+      width: 100%;
+      border-radius: 16px;
+      margin-top: 10px;
+    }
+
+    iframe {
+      height: 260px;
+      border: none;
+    }
+
+    .status {
+      text-align: center;
+      padding: 12px;
+      color: white;
+      font-weight: bold;
+      display: none;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal img {
+      max-width: 95%;
+      max-height: 90vh;
+      border-radius: 20px;
+    }
+
+    .modal span {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 38px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+      header h1 {
+        font-size: 26px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      iframe {
+        height: 220px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Galeria de Mídias</h1>
+  <p>Envie imagens, áudios e vídeos para todos visualizarem</p>
+</header>
+
+<div class="app">
+
+  <div id="status" class="status"></div>
+
+  <section class="card">
+    <h2>Enviar nova mídia</h2>
+
+    <div class="form-grid">
+      <input type="text" id="usuario" placeholder="Seu nome">
+
+      <select id="tipo">
+        <option value="imagem">Imagem</option>
+        <option value="audio">Áudio</option>
+        <option value="video">Vídeo</option>
+      </select>
+
+      <input type="text" id="titulo" placeholder="Título da mídia">
+
+      <input type="file" id="arquivo" accept="image/*,audio/*,video/*">
+
+      <textarea id="descricao" class="full" placeholder="Descrição"></textarea>
+
+      <button class="full" onclick="enviarArquivo()">Enviar mídia</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="trocarAba('todos', this)">Todos</div>
+      <div class="tab" onclick="trocarAba('imagem', this)">Imagens</div>
+      <div class="tab" onclick="trocarAba('audio', this)">Áudios</div>
+      <div class="tab" onclick="trocarAba('video', this)">Vídeos</div>
+    </div>
+
+    <div id="galeria" class="grid"></div>
+  </section>
+
+</div>
+
+<div id="modal" class="modal" onclick="fecharModal()">
+  <span>&times;</span>
+  <img id="imagemModal">
+</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbyjxjASlv_sDfCtuW_FCsMZdDPn_vuT5ajqM3O0ii8jwHgFLhE8u-gfhUV0Wk8uQqEC8A/exec";
+
+  let todasMidias = [];
+  let abaAtual = "todos";
+
+  function mostrarStatus(texto, cor = "#4caf50") {
+    const status = document.getElementById("status");
+    status.innerText = texto;
+    status.style.background = cor;
+    status.style.display = "block";
+
+    setTimeout(() => {
+      status.style.display = "none";
+    }, 4000);
+  }
+
+  function enviarArquivo() {
+    const usuario = document.getElementById("usuario").value.trim();
+    const tipo = document.getElementById("tipo").value;
+    const titulo = document.getElementById("titulo").value.trim();
+    const descricao = document.getElementById("descricao").value.trim();
+    const arquivo = document.getElementById("arquivo").files[0];
+
+    if (!usuario || !titulo || !descricao || !arquivo) {
+      mostrarStatus("Preencha todos os campos e escolha um arquivo.", "#e53935");
+      return;
+    }
+
+    if (tipo === "imagem" && !arquivo.type.startsWith("image/")) {
+      mostrarStatus("Escolha um arquivo de imagem.", "#e53935");
+      return;
+    }
+
+    if (tipo === "audio" && !arquivo.type.startsWith("audio/")) {
+      mostrarStatus("Escolha um arquivo de áudio.", "#e53935");
+      return;
+    }
+
+    if (tipo === "video" && !arquivo.type.startsWith("video/")) {
+      mostrarStatus("Escolha um arquivo de vídeo.", "#e53935");
+      return;
+    }
+
+    mostrarStatus("Enviando arquivo... aguarde.", "#6a1b9a");
+
+    const leitor = new FileReader();
+
+    leitor.onload = function(evento) {
+      const arquivoBase64 = evento.target.result;
+
+      const dados = {
+        usuario,
+        tipo,
+        titulo,
+        descricao,
+        nomeArquivo: arquivo.name,
+        mimeType: arquivo.type,
+        arquivoBase64
+      };
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(dados)
+      })
+      .then(res => res.json())
+      .then(resposta => {
+        if (resposta.status === "sucesso") {
+          mostrarStatus("Mídia enviada com sucesso!", "#43a047");
+
+          document.getElementById("titulo").value = "";
+          document.getElementById("descricao").value = "";
+          document.getElementById("arquivo").value = "";
+
+          carregarMidias();
+        } else {
+          mostrarStatus("Erro: " + resposta.mensagem, "#e53935");
+        }
+      })
+      .catch(() => {
+        mostrarStatus("Erro ao enviar. Confira o link do Apps Script.", "#e53935");
+      });
+    };
+
+    leitor.readAsDataURL(arquivo);
+  }
+
+  function carregarMidias() {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(dados => {
+        todasMidias = dados;
+        renderizarGaleria();
+      })
+      .catch(() => {
+        mostrarStatus("Erro ao carregar mídias.", "#e53935");
+      });
+  }
+
+  function trocarAba(tipo, elemento) {
+    abaAtual = tipo;
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.classList.remove("active");
+    });
+
+    elemento.classList.add("active");
+    renderizarGaleria();
+  }
+
+  function renderizarGaleria() {
+  const galeria = document.getElementById("galeria");
+  galeria.innerHTML = "";
+
+  const lista = abaAtual === "todos"
+    ? todasMidias
+    : todasMidias.filter(item => item["Tipo"] === abaAtual);
+
+  if (lista.length === 0) {
+    galeria.innerHTML = "<p>Nenhuma mídia encontrada.</p>";
+    return;
+  }
+
+  lista.forEach(item => {
+    const tipo = item["Tipo"];
+    const titulo = item["Título"];
+    const descricao = item["Descrição"];
+    const usuario = item["Usuário"];
+    const data = item["Data"];
+    const fileId = item["FileID"];
+
+    const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+    const imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
+
+    let midiaHTML = "";
+
+    if (tipo === "imagem") {
+      midiaHTML = `
+        <img 
+          src="${imageUrl}" 
+          class="media-img" 
+          onclick="abrirModal('${imageUrl}')"
+        >
+      `;
+    }
+
+    if (tipo === "audio") {
+      midiaHTML = `
+        <iframe 
+          src="${previewUrl}" 
+          allow="autoplay"
+          style="height:120px;">
+        </iframe>
+      `;
+    }
+
+    if (tipo === "video") {
+      midiaHTML = `
+        <iframe 
+          src="${previewUrl}" 
+          allow="autoplay; fullscreen" 
+          allowfullscreen>
+        </iframe>
+      `;
+    }
+
+    galeria.innerHTML += `
+      <div class="media-card">
+        ${midiaHTML}
+        <h3>${titulo}</h3>
+        <p>${descricao}</p>
+        <small>Enviado por: ${usuario}</small>
+        <small>${data}</small>
+      </div>
+    `;
+  });
+}
+
+  function abrirModal(src) {
+    document.getElementById("imagemModal").src = src;
+    document.getElementById("modal").style.display = "flex";
+  }
+
+  function fecharModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+  carregarMidias();
+
+  setInterval(carregarMidias, 10000);
+</script>
+
+</body>
+</html>
